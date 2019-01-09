@@ -117,7 +117,7 @@ function setAttributes(xml, version, buildNumber) {
   }
 
   if (version && !buildNumber) {
-    const code = 0;
+    let code = 0;
     const parts = version.split('.');
     parts.forEach(val => {
       code = code * 100 + Number(val);
