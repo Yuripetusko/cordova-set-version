@@ -2,6 +2,7 @@ import fs from 'fs';
 import promisify from 'util-promisify';
 import xml2js from 'xml2js-es6-promise';
 import { Builder } from 'xml2js';
+import semver from 'semver';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -25,10 +26,6 @@ async function cordovaSetVersion(...args) {
   checkTypeErrors(configPath, version, buildNumber);
 
   let xml = await getXml(configPath);
-
-  if (!version && !buildNumber) {
-    version = await getVersionFromPackage(version);
-  }
 
   xml = setAttributes(xml, version, buildNumber);
 
@@ -112,9 +109,9 @@ async function getVersionFromPackage() {
 function setAttributes(xml, version, buildNumber) {
   const newXml = xml;
 
-  if (version) {
-    newXml.widget.$.version = version;
-  }
+  version = version || semver.inc(newXml.widget.$.version, 'patch');
+
+  newXml.widget.$.version = version;
 
   if (version && !buildNumber) {
     let code = 0;
