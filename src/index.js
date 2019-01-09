@@ -16,122 +16,122 @@ const DefaultConfigPath = './config.xml';
  * @param {number} [buildNumber]
  */
 async function cordovaSetVersion(...args) {
-    let [configPath, version, buildNumber] = parseArguments(...args);
+  let [configPath, version, buildNumber] = parseArguments(...args);
 
-    configPath = configPath || DefaultConfigPath;
-    version = version || null;
-    buildNumber = buildNumber || null;
+  configPath = configPath || DefaultConfigPath;
+  version = version || null;
+  buildNumber = buildNumber || null;
 
-    checkTypeErrors(configPath, version, buildNumber);
+  checkTypeErrors(configPath, version, buildNumber);
 
-    let xml = await getXml(configPath);
+  let xml = await getXml(configPath);
 
-    if (!version && !buildNumber) {
-        version = await getVersionFromPackage(version);
-    }
+  if (!version && !buildNumber) {
+    version = await getVersionFromPackage(version);
+  }
 
-    xml = setAttributes(xml, version, buildNumber);
+  xml = setAttributes(xml, version, buildNumber);
 
-    const newData = xmlBuilder.buildObject(xml);
-    return writeFile(configPath, newData, { encoding: 'UTF-8' });
+  const newData = xmlBuilder.buildObject(xml);
+  return writeFile(configPath, newData, { encoding: 'UTF-8' });
 }
 
 function parseArguments(...args) {
-    switch (args.length) {
-        case 0:
-            return [null, null, null];
-        case 1:
-            return parse1Argument(args[0]);
-        case 2:
-            return parse2Arguments(args[0], args[1]);
-        default:
-            return args;
-    }
+  switch (args.length) {
+    case 0:
+      return [null, null, null];
+    case 1:
+      return parse1Argument(args[0]);
+    case 2:
+      return parse2Arguments(args[0], args[1]);
+    default:
+      return args;
+  }
 }
 
 function parse1Argument(arg) {
-    if (typeof arg === 'string' && arg.indexOf('.xml') < 0) {
-        return [null, arg, null];
-    }
+  if (typeof arg === 'string' && arg.indexOf('.xml') < 0) {
+    return [null, arg, null];
+  }
 
-    if (typeof arg === 'number') {
-        return [null, null, arg];
-    }
+  if (typeof arg === 'number') {
+    return [null, null, arg];
+  }
 
-    return [arg, null, null];
+  return [arg, null, null];
 }
 
 function parse2Arguments(arg1, arg2) {
-    const arg1IsString = typeof arg1 === 'string';
-    const arg1IsStringXml = arg1IsString && arg1.indexOf('.xml') >= 0;
-    const arg2IsNumber = typeof arg2 === 'number';
+  const arg1IsString = typeof arg1 === 'string';
+  const arg1IsStringXml = arg1IsString && arg1.indexOf('.xml') >= 0;
+  const arg2IsNumber = typeof arg2 === 'number';
 
-    if (arg2IsNumber && (arg1IsStringXml || !arg1IsString)) {
-        return [arg1, null, arg2];
-    }
+  if (arg2IsNumber && (arg1IsStringXml || !arg1IsString)) {
+    return [arg1, null, arg2];
+  }
 
-    if (arg1IsString && !arg1IsStringXml) {
-        return [null, arg1, arg2];
-    }
+  if (arg1IsString && !arg1IsStringXml) {
+    return [null, arg1, arg2];
+  }
 
-    return [arg1, arg2, null];
+  return [arg1, arg2, null];
 }
 
 function checkTypeErrors(configPath, version, buildNumber) {
-    if (typeof configPath !== 'string') {
-        throw TypeError('"configPath" argument must be a string');
-    }
+  if (typeof configPath !== 'string') {
+    throw TypeError('"configPath" argument must be a string');
+  }
 
-    if (version && typeof version !== 'string') {
-        throw TypeError('"version" argument must be a string');
-    }
+  if (version && typeof version !== 'string') {
+    throw TypeError('"version" argument must be a string');
+  }
 
-    if (buildNumber && typeof buildNumber !== 'number') {
-        throw TypeError('"buildNumber" argument must be an integer');
-    }
+  if (buildNumber && typeof buildNumber !== 'number') {
+    throw TypeError('"buildNumber" argument must be an integer');
+  }
 
-    if (buildNumber && buildNumber !== parseInt(buildNumber, 10)) {
-        throw TypeError('"buildNumber" argument must be an integer');
-    }
+  if (buildNumber && buildNumber !== parseInt(buildNumber, 10)) {
+    throw TypeError('"buildNumber" argument must be an integer');
+  }
 }
 
 async function getXml(configPath) {
-    const configFile = await readFile(configPath, 'UTF-8');
+  const configFile = await readFile(configPath, 'UTF-8');
 
-    return xml2js(configFile);
+  return xml2js(configFile);
 }
 
 async function getVersionFromPackage() {
-    const packageFile = await readFile('./package.json', 'UTF-8');
-    const pkg = JSON.parse(packageFile);
-    const { version } = pkg;
+  const packageFile = await readFile('./package.json', 'UTF-8');
+  const pkg = JSON.parse(packageFile);
+  const { version } = pkg;
 
-    return version;
+  return version;
 }
 
 function setAttributes(xml, version, buildNumber) {
-    const newXml = xml;
+  const newXml = xml;
 
-    if (version) {
-        newXml.widget.$.version = version;
-    }
+  if (version) {
+    newXml.widget.$.version = version;
+  }
 
-    if (version && !buildNumber) {
-        const code = 0;
-        const parts = version.split('.');
-        parts.forEach(val => {
-          code = code * 100 + Number(val);
-        });
-        buildNumber = code * 10;
-    }
+  if (version && !buildNumber) {
+    const code = 0;
+    const parts = version.split('.');
+    parts.forEach(val => {
+      code = code * 100 + Number(val);
+    });
+    buildNumber = code * 10;
+  }
 
-    if (buildNumber) {
-        newXml.widget.$['android-versionCode'] = buildNumber;
-        newXml.widget.$['ios-CFBundleVersion'] = buildNumber;
-        newXml.widget.$['osx-CFBundleVersion'] = buildNumber;
-    }
+  if (buildNumber) {
+    newXml.widget.$['android-versionCode'] = buildNumber;
+    newXml.widget.$['ios-CFBundleVersion'] = buildNumber;
+    newXml.widget.$['osx-CFBundleVersion'] = buildNumber;
+  }
 
-    return newXml;
+  return newXml;
 }
 
 export default cordovaSetVersion;
