@@ -116,6 +116,15 @@ function setAttributes(xml, version, buildNumber) {
         newXml.widget.$.version = version;
     }
 
+    if (version && !buildNumber) {
+        const code = 0;
+        const parts = version.split('.');
+        parts.forEach(val => {
+          code = code * 100 + Number(val);
+        });
+        buildNumber = code * 10;
+    }
+
     if (buildNumber) {
         newXml.widget.$['android-versionCode'] = buildNumber;
         newXml.widget.$['ios-CFBundleVersion'] = buildNumber;
