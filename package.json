@@ -17,7 +17,7 @@
         ]
     },
     "bin": {
-        "cordova-set-version": "dist/cli.js"
+        "cordova-set-version": "src/cli.js"
     },
     "bugs": {
         "url": "https://github.com/gligoran/cordova-set-version/issues"
