@@ -119,7 +119,9 @@ function setAttributes(xml, version, buildNumber) {
     parts.forEach(val => {
       code = code * 100 + Number(val);
     });
-    buildNumber = code * 10;
+    buildNumber = newXml.widget.$['android-versionCode']
+      ? String(Number(newXml.widget.$['android-versionCode']) + 1)
+      : code * 10;
   }
 
   if (buildNumber) {
