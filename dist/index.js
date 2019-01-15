@@ -177,8 +177,6 @@ function setAttributes(xml, version, buildNumber) {
 
   if (buildNumber) {
     newXml.widget.$['android-versionCode'] = buildNumber;
-    newXml.widget.$['ios-CFBundleVersion'] = buildNumber;
-    newXml.widget.$['osx-CFBundleVersion'] = buildNumber;
   }
 
   return newXml;
